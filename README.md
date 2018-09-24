@@ -14,4 +14,4 @@ Frequent Domain Plotting - hit "-" several times when the file comes up; eventua
 
 mne_view.py - shows proper EEG signals
 
-Time Domain Plotting - hit "-" several times when the file comes up; eventually only signal on the time sync channels will be shown
+Time Domain Plotting - important -- remove last 6 channels; also data already appears to be filtered so applying the filter on top of the data doesn't give good results
