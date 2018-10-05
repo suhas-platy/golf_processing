@@ -1,0 +1,4 @@
+GetDataQuality(*.edf)
+GetData(*.edf)
+ReadEvents(*.mrk, *.edf)
+
