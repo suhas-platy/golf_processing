@@ -3,7 +3,7 @@ function [events, header] = convert_events( in_filename, out_filename )
 %
 % testing:
 %   in_filename = 'C:\Users\suhas\Desktop\prjs\golf_processing\data\ABM - Old Golf Data\NUGA Golfers\0261\0261\026111501_Markers.mrk_Events_EEGLAB.csv'
-%   out_filename = 'C:\Users\suhas\Desktop\prjs\golf_processing\data\ABM - Old Golf Data\NUGA Golfers\0261\0261\events_eeglab.csv'
+%   out_filename = 'C:\Users\suhas\Desktop\prjs\golf_processing\data\ABM - Old Golf Data\NUGA Golfers\0261\0261\026111501_Markers.mrk_Events_EEGLAB_simple.csv'
 %   [events, header] = convert_events( in_filename, out_filename )
 
   fid = fopen( in_filename );
