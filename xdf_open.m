@@ -10,6 +10,8 @@ DATA_PATH = '..\\data\\Giorgio 072118\\Giorgio 072118\\EEG Data\\'
 EEG_FNAME = 'giorgio_phase3.xdf'
 
 HANDLE_CLOCK_SYNCHRONIZATION = 'false'
+
 HANDLE_CLOCK_RESETS = 'false'
+
 
 [streams,fileheader] = load_xdf2( [DATA_PATH EEG_FNAME], 'HandleClockSynchronization', HANDLE_CLOCK_SYNCHRONIZATION, 'HandleClockResets', HANDLE_CLOCK_RESETS )

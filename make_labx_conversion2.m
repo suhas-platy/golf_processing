@@ -1,14 +1,12 @@
-in_filename = 'labx_conversion2_tmp.blab'
+OUT_FILENAME = 'labx_conversion2_tmp.blab'
+SUBJ = '026111'
+SESS_START = 501
+SESS_END = 510
 
-subj = '026111'
+fid = fopen( OUT_FILENAME, 'w' );
 
-sess_start = 501
-sess_end = 510
-
-fid = fopen( in_filename, 'w' );
-
-for i = sess_start:sess_end
-  prefix = sprintf( '%s%s', subj, num2str( i ) );
+for i = SESS_START:SESS_END
+  prefix = sprintf( '%s%s', SUBJ, num2str( i ) );
   cmd = sprintf( 'ExportABMFormat( EEGLAB, %s.ebs.edf, %s_Markers.mrk )',...
     prefix, prefix );
   fprintf( fid, cmd );
