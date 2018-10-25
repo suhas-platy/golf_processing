@@ -60,21 +60,22 @@ Everytime you start a session, you'll have to do `activate mne`
 
 ## ABM - Old Golf Data
 
-Update subject number and session numbers in make_labx_conversion2.m and then put labx_conversion2_tmp.blab in the data directory.  Run it with LabX.  This will produce EDF and CSV files.
+Update subject numbers, session numbers, etc. in labx2eeglab_shell.m; this will make BLAB files in the data directories.  Run each BLAB file in its own directory with LabX.  This will produce EDF and CSV files.
 * If the command window disappers, press the Reset Config button in the upper left.
 * This will make these files: ---.ebs.edf.EEGLAB.edf, ---.ebs.edf_EEGLAB.csv, X24 Visual.ced and ---_Markers.mrk_Events_EEGLAB.csv, where --- is the subject ID plus trail info.
-* One at a time processing and get other files: Adapt & copy ./labx_conversion.blab and ./labx_conversion2.blab to the data directory (e.g., data\ABM - Old Golf Data\NUGA Golfers\0261\0261) you want then run in LabX.
+* One at a time processing and get other files: Adapt & copy ./labx_data_quality_etc.blab and ./labx2eeglab.blab to the data directory (e.g., data\ABM - Old Golf Data\NUGA Golfers\0261\0261) you want then run in LabX.
+* labx_slice_into_events.blab is there for reference; not used
 
 Update subject number, session numbers, etc. in convert_events_shell.m to change the events file into something EEGLab can read.
 * NB subj 261, session 505 has several errant markers
 
-Open the EDF created by ./labx_conversion2_tmp.blah or ./labx_conversion2.blab in EEGLab (File->Import data...); click OK through all the dialogue boxes.
-* For Suhas, C:\Users\suhas\Desktop\prjs\golf_processing\data\ABM - Old Golf Data\NUGA Golfers\0261\0261\026111501.ebs.edf.EEGLAB.edf
+Open the EDF created by ./labx2eeglab_conversion_tmp.blah or ./labx2eeglab_conversion.blab in EEGLab (File->Import data...); click OK through all the dialogue boxes.
+* For Suhas, C:\Users\suhas\Desktop\prjs\golf_processing\data\ABM - Old Golf Data\NUGA Golfers\0261\026111501.ebs.edf.EEGLAB.edf
 * Do not view it yet (wait until events are loaded).
 
 Then import the events using the instructions here: https://irenevigueguix.wordpress.com/2016/04/22/eeglab-tutorial-analysis-of-eeg-data-using-eeglab/, Step 3.
 * File->Import event data->From Matlab ... and point it to the event file saved from the first step.
-** For Suhas, C:\Users\suhas\Desktop\prjs\golf_processing\data\ABM - Old Golf Data\NUGA Golfers\0261\0261\026111501_Markers.mrk_Events_EEGLAB_simple.csv
+** For Suhas, C:\Users\suhas\Desktop\prjs\golf_processing\data\ABM - Old Golf Data\NUGA Golfers\0261\026111501_Markers.mrk_Events_EEGLAB_simple.csv
 * Input field (column) names: latency	type	success
 * Number of file header lines: 1
 

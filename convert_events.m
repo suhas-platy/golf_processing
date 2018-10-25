@@ -1,4 +1,4 @@
-function [events, header, ignored_events] = convert_events( in_filename, out_filename, varargin )
+function [events, header, ignored_events, updated_events] = convert_events( in_filename, out_filename, varargin )
 % @brief convert output of LabX into something EEGLab can read
 %
 % testing:
@@ -10,7 +10,9 @@ function [events, header, ignored_events] = convert_events( in_filename, out_fil
 
   % global param's
   DNE_SUCCESS_IN_OUTPUT = -1; % if we don't have merged markers, use this dummy value to put in the output file
-   
+  SUCCESS_IN_OUTPUT = 1;
+  NOT_SUCCESS_IN_OUTPUT = 0;
+  
   % handle arguments
   HAVE_MERGED_MARKERS = 0;
   VERBOSE = 1;
@@ -21,11 +23,14 @@ function [events, header, ignored_events] = convert_events( in_filename, out_fil
   if ( isfield(opts, 'verbose' ) )
      VERBOSE = opts.verbose;
   end
+  if ( isfield(opts, 'exceptions' ) )
+     EXCEPTION = opts.exceptions;
+  end
   
   % check if in_filename exists and figure out session number for it
   fid = fopen( in_filename );
   if ( fid == -1 )
-    disp( sprintf( 'convert_events: in_filename (%s) not found.  Returning without further processing.', in_filename ) );
+    error( sprintf( 'convert_events: in_filename (%s) not found.  Returning without further processing.', in_filename ) );
     return
   end
   % figure out session from filename
@@ -36,7 +41,7 @@ function [events, header, ignored_events] = convert_events( in_filename, out_fil
   % check if out_filename exists
   fid_out = fopen( out_filename, 'w' );
   if ( fid_out == -1 )
-    disp( sprintf( 'convert_events: cannot open out_filename (%s).  Returning without further processing.', out_filename ) );
+    error( sprintf( 'convert_events: cannot open out_filename (%s).  Returning without further processing.', out_filename ) );
     return
   end
   
@@ -58,11 +63,19 @@ function [events, header, ignored_events] = convert_events( in_filename, out_fil
 
      TOLERANCE = 1.005; % .004 off in 501, 1.004 off in 502
      SUCCESS_IN_MERGED_MARKERS = 5;
-     NOT_SUCCESS_IN_OUTPUT = 0;
 
-     % read and parse
+     % read merged markers
+     
+     % check if there
+     fid_mm = fopen( opts.merged_markers_filename, 'r' );
+     if ( fid_mm == -1 )
+        error( sprintf( 'convert_events: cannot open opts.merged_makers_filename (%s).  Returning without further processing.', opts.merged_makers_filename ) );
+        return
+     else
+        fclose( fid_mm );
+     end
+      
      [~,~,merged_markers_raw] = xlsread( opts.merged_markers_filename );
-     % @todo catch file not found
      END_DATA_ROW_IDX = size( merged_markers_raw, 1 );
 
      ctr = 1;
@@ -111,6 +124,7 @@ function [events, header, ignored_events] = convert_events( in_filename, out_fil
   do_not_increment_line_ctr_for_merged_markers = false;
   skip_lines = 0;
   ignored_events = [];
+  updated_events = [];
   while ( line ~= -1 )
     data = textscan(line, '%s', 'Delimiter', ',', 'EmptyValue', nan);
     
@@ -127,40 +141,48 @@ function [events, header, ignored_events] = convert_events( in_filename, out_fil
     
     if ( HAVE_MERGED_MARKERS )
        merged_markers_row_idx = line_ctr + SESSION_START_DATA_ROW_IDX - 1 - skip_lines;
-       %if ( do_not_increment_line_ctr_for_merged_markers )
-       %   merged_markers_row_idx = merged_markers_row_idx - 1; % same as (line_ctr-1)
-       %   do_not_increment_line_ctr_for_merged_markers = false;
-       %end
        
        % latency
        time = merged_markers_start_epoch( merged_markers_row_idx );
        time_diff = events(line_ctr).latency - time;
        if ( abs( time_diff ) > TOLERANCE )
-         % check events before and after
-         time_pre = merged_markers_start_epoch( merged_markers_row_idx - 1 );
-         time_diff_pre = events(line_ctr-1).latency - time_pre;
-         
-         time_post = merged_markers_start_epoch( merged_markers_row_idx +1 1 );
-         time_diff_post = events(line_ctr).latency - time_post;         
-           
-           
          warning( sprintf( 'convert_events: line %d (%f seconds) off by %f seconds from merged markers file; ignoring entry',...
                            line_ctr, latency_num, time_diff ) );
-         ignored_events = [ignored_events line_ctr];
-         line = fgetl( fid );
-         line_ctr = line_ctr+1;
-         do_not_increment_line_ctr_for_merged_markers = true;
-         skip_lines = skip_lines+1;
-         continue;
+         
+         % @todo handle passed in exceptions
+         action = input( 'convert_events: Ignore (i), add (a) or update (u)? (Default is update) ', 's' );
+         action = lower( action );
+         if ( isempty( action ) )
+            action = 'u';
+         end
+         
+         if ( action == 'i' )
+           ignored_events = [ignored_events line_ctr];
+           line = fgetl( fid );
+           line_ctr = line_ctr+1;
+           skip_lines = skip_lines+1;
+           continue;
+         elseif ( action == 'a' )
+            added_events_idx = [line_ctr];
+            added_events_time = merged_markers_start_epoch( merged_markers_row_idx );
+            %added_events_type = 
+         elseif ( action == 'u' )
+            updated_events = [updated_events line_ctr];
+            events(line_ctr).latency = time;
+         else
+            error( 'convert_events: please enter i or u' );
+            keyboard;
+         end
+         
        end
        
        % type
        type_str = merged_markers_type{ merged_markers_row_idx };
        if ( strfind( lower(type_str), lower('Video Start') ) )
-	      type_str = 'VideoStart';
+          type_str = 'VideoStart';
        end
        if ( strfind( lower(type_str), lower('Video End') ) )
-	      type_str = 'VideoEnd';
+          type_str = 'VideoEnd';
        end          
        if ( strfind( lower(type_str), lower('End Play') ) )
           type_str = 'EndPlay';
@@ -175,9 +197,9 @@ function [events, header, ignored_events] = convert_events( in_filename, out_fil
 
        % success; pack away
        if ( merged_markers_success( merged_markers_row_idx ) == SUCCESS_IN_MERGED_MARKERS )
-         events(line_ctr).success = 1;
+         events(line_ctr).success = SUCCESS_IN_OUTPUT;
        else
-         events(line_ctr).success = 0;
+         events(line_ctr).success = NOT_SUCCESS_IN_OUTPUT;
        end
     else
       events(line_ctr).success = DNE_SUCCESS_IN_OUTPUT; % put a value in to write out below	 
@@ -195,6 +217,12 @@ function [events, header, ignored_events] = convert_events( in_filename, out_fil
     line = fgetl( fid );
     line_ctr = line_ctr+1;
   end
-
+  
+  % catch if video end is missing
+  if ( strfind( events(line_ctr-1).type, 'VideoEnd' ) == -1 )
+     warning( 'convert_events: no Video End found; appending with last time stamp' );
+     fprintf( fid_out, '%f\t%s\t%d\n', events(line_ctr-1).latency, 'VideoEnd', NOT_SUCCESS_IN_OUTPUT );
+  end
+  
   fclose(fid);
   fclose(fid_out);
