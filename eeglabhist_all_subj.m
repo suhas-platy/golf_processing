@@ -3,7 +3,7 @@
 SUBJ_Z = [261:265];
 %SUBJ_Z = [261 263:265];
 SESS_START = 501;
-SESS_END = 501;
+SESS_END = 502;
 PATH = 'C:\Users\suhas\Desktop\prjs\golf_processing\data\ABM - Old Golf Data\';
 PATH = [PATH 'NUGA Golfers\'];
 

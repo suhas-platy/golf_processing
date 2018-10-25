@@ -1,0 +1,14 @@
+[ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
+EEG = pop_loadset('filename','eeglab_export_5sBeforePutts1sAfter.set','filepath','C:\\Users\\suhas\\Desktop\\prjs\\golf_processing\\data\\ABM - Old Golf Data\\NUGA Golfers\\0264\\');
+[ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG, 0 );
+EEG = eeg_checkset( EEG );
+EEG = pop_reref( EEG, []);
+[ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 1,'setname','zoo','gui','off'); 
+ALLEEG = pop_delset( ALLEEG, [2] );
+[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);
+[STUDY ALLEEG] = std_editset( STUDY, ALLEEG, 'name','golf','commands',{{'index' 1 'load' 'C:\\Users\\suhas\\Desktop\\prjs\\golf_processing\\data\\ABM - Old Golf Data\\NUGA Golfers\\0261\\eeglab_export_5sBeforePutts1sAfter.set'} {'index' 2 'load' 'C:\\Users\\suhas\\Desktop\\prjs\\golf_processing\\data\\ABM - Old Golf Data\\NUGA Golfers\\0262\\eeglab_export_5sBeforePutts1sAfter.set'} {'index' 3 'load' 'C:\\Users\\suhas\\Desktop\\prjs\\golf_processing\\data\\ABM - Old Golf Data\\NUGA Golfers\\0263\\eeglab_export_5sBeforePutts1sAfter.set'} {'index' 4 'load' 'C:\\Users\\suhas\\Desktop\\prjs\\golf_processing\\data\\ABM - Old Golf Data\\NUGA Golfers\\0264\\eeglab_export_5sBeforePutts1sAfter.set'} {'index' 5 'load' 'C:\\Users\\suhas\\Desktop\\prjs\\golf_processing\\data\\ABM - Old Golf Data\\NUGA Golfers\\0264\\eeglab_export_5sBeforePutts1sAfter.set' 'load' 'C:\\Users\\suhas\\Desktop\\prjs\\golf_processing\\data\\ABM - Old Golf Data\\NUGA Golfers\\0265\\eeglab_export_5sBeforePutts1sAfter.set'}},'updatedat','on','savedat','on','rmclust','on' );
+[STUDY ALLEEG] = std_checkset(STUDY, ALLEEG);
+CURRENTSTUDY = 1; EEG = ALLEEG; CURRENTSET = [1:length(EEG)];
+CURRENTSTUDY = 0;[ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, [1:5] ,'retrieve',5,'study',1); 
+ALLEEG = pop_delset( ALLEEG, [5] );
+[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);
